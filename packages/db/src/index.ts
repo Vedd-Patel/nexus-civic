@@ -31,6 +31,7 @@ export { TownHallSession } from './models/TownHallSession.model';
 
 // Used by LedgerCivic
 export { ExpenditureEntry } from './models/ExpenditureEntry.model';
+export { BudgetAnomaly } from './models/BudgetAnomaly.model';
 
 // Used by MeshAlert
 export { RescueEvent } from './models/RescueEvent.model';

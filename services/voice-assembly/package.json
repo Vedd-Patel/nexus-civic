@@ -1,0 +1,37 @@
+{
+  "name": "voice-assembly",
+  "version": "1.0.0",
+  "description": "Voice Assembly Service for Nexus Civic",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "axios": "^1.5.0",
+    "zod": "^3.22.2",
+    "helmet": "^7.0.0",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0",
+    "winston": "^3.10.0",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.2",
+    "dotenv": "^16.3.1",
+    "@nexus-civic/shared-types": "*",
+    "@nexus-civic/db": "*",
+    "@nexus-civic/gemini-client": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "@types/node": "^20.5.9",
+    "@types/express": "^4.17.17",
+    "@types/cors": "^2.8.13",
+    "@types/morgan": "^1.9.5",
+    "@types/jsonwebtoken": "^9.0.2",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1"
+  }
+}

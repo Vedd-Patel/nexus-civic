@@ -362,6 +362,27 @@ export interface ITownHallSession {
 
 // --- LedgerCivic ------------------------------------------------
 
+export interface IBudgetAnomaly {
+  /** Optional unique identifier for the anomaly record. */
+  _id?: string;
+  /** Department where the anomaly occurred. */
+  department: string;
+  /** Budget category related to the anomaly. */
+  category: string;
+  /** Expected maximum budget allocation. */
+  expectedAllocation: number;
+  /** Actual total expenditure that triggered the anomaly. */
+  actualTotal: number;
+  /** Percentage by which the actual exceeded the expected. */
+  variancePercentage: number;
+  /** Month in 'YYYY-MM' format for which this was aggregated. */
+  month: string;
+  /** Current review status the anomaly. */
+  status: 'PENDING_REVIEW' | 'FLAGGED' | 'EXPLAINED';
+  /** Optional timestamp when the record was created. */
+  createdAt?: Date;
+}
+
 export interface IExpenditureEntry {
   /** Optional unique identifier for the expenditure entry. */
   _id?: string;
