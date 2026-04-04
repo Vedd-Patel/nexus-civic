@@ -5,6 +5,7 @@ import CivicPulseFeed from '@/components/dashboard/CivicPulseFeed';
 import SOSAlertsFeed from '@/components/dashboard/SOSAlertsFeed';
 import BudgetSummary from '@/components/dashboard/BudgetSummary';
 import AuraAuditLog from '@/components/dashboard/AuraAuditLog';
+import AddExpenditureCard from '@/components/dashboard/AddExpenditureCard';
 
 export default function DashboardPage() {
   return (
@@ -51,10 +52,13 @@ export default function DashboardPage() {
 
       {/* Row 6: BudgetSummary 50% + AuraAuditLog 50% */}
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-1/3">
           <BudgetSummary />
         </div>
-        <div className="w-full lg:w-1/2">
+        <div className="w-full lg:w-1/3">
+          <AddExpenditureCard />
+        </div>
+        <div className="w-full lg:w-1/3">
           <AuraAuditLog />
         </div>
       </div>

@@ -1,31 +1,45 @@
 "use client";
 import React, { useState } from 'react';
+import useSWR from 'swr';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function BudgetPage() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loadingAnswer, setLoadingAnswer] = useState(false);
 
-  const data = [
+  const baseUrl = process.env.NEXT_PUBLIC_LEDGER_CIVIC_URL || 'http://localhost:3009';
+  const { data: budgetData } = useSWR(`${baseUrl}/api/budget/summary`, fetcher);
+  const { data: expData } = useSWR(`${baseUrl}/api/expenditures`, fetcher);
+
+  const data = budgetData?.data?.departments?.map((d: any) => ({
+    name: d.name,
+    alloc: d.allocation * 1000,
+    actual: d.actual * 1000
+  })) || [
     { name: 'Public Works', alloc: 500000, actual: 480000 },
     { name: 'Health', alloc: 300000, actual: 320000 },
     { name: 'Education', alloc: 800000, actual: 750000 },
     { name: 'Security', alloc: 400000, actual: 440000 }
   ];
 
-  const expenditures = [
-    { id: 1, date: "2026-04-01", dept: "Public Works", cat: "Road Repair", amt: "$15,000", status: "Completed", link: "0xMockHash123a" },
-    { id: 2, date: "2026-04-02", dept: "Health", cat: "Supplies", amt: "$8,200", status: "Processing", link: null },
-    { id: 3, date: "2026-04-03", dept: "Security", cat: "Equipment", amt: "$45,000", status: "Completed", link: "0xMockHash456b" }
-  ];
+  const expenditures = expData?.data?.map((e: any) => ({
+    id: e._id,
+    date: new Date(e.createdAt).toISOString().split('T')[0],
+    dept: e.department,
+    cat: e.category,
+    amt: `$${e.amount.toLocaleString()}`,
+    status: 'Completed',
+    link: e.isMockSignature || (e.solanaSignature && e.solanaSignature.startsWith('mock_')) ? null : e.solanaSignature
+  })) || [];
 
   const handleAsk = async () => {
     if(!question) return;
     setLoadingAnswer(true);
     setAnswer("");
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_LEDGER_CIVIC_URL || 'http://localhost:3009';
       const response = await fetch(`${baseUrl}/api/budget/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -78,13 +92,15 @@ export default function BudgetPage() {
       </div>
 
       {/* Anomaly Banner */}
-      <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-4 text-red-600 relative overflow-hidden group">
-         <span className="text-3xl animate-bounce">⚠️</span>
-         <div>
-            <p className="font-bold text-lg">Budget Anomaly Detected</p>
-            <p className="text-red-500">2 departments (Health, Security) are over budget this month.</p>
-         </div>
-      </div>
+      {budgetData?.data?.anomalies?.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 flex items-center gap-4 text-red-600 relative overflow-hidden group">
+           <span className="text-3xl animate-bounce">⚠️</span>
+           <div>
+              <p className="font-bold text-lg">Budget Anomaly Detected</p>
+              <p className="text-red-500">{budgetData.data.anomalies.length} departments are flagged for budget variance this month.</p>
+           </div>
+        </div>
+      )}
 
       {/* Chart Section */}
       <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-sm relative overflow-hidden group">
@@ -128,7 +144,7 @@ export default function BudgetPage() {
                  </tr>
                </thead>
                <tbody className="divide-y divide-slate-100">
-                 {expenditures.map(e => (
+                 {expenditures.map((e: any) => (
                    <tr key={e.id} className="hover:bg-slate-50 transition-colors group">
                      <td className="py-4 text-slate-500 group-hover:text-slate-700 transition-colors">{e.date}</td>
                      <td className="py-4">

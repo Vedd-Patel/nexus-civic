@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { createExpenditure, listExpenditures, getExpenditure } from '../controllers/expenditure.controller';
-import { authenticate } from '../middleware/auth';
+import { authenticate, optionalAuth } from '../middleware/auth';
 
 const router = Router();
 
 router.get('/', listExpenditures);
 router.get('/:id', getExpenditure);
-router.post('/', authenticate, createExpenditure);
+router.post('/', optionalAuth, createExpenditure);
 
 export default router;

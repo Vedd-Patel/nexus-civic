@@ -37,8 +37,8 @@ export default function CitizenHub() {
                 <FileText className="w-8 h-8" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">Report Issue</h4>
-                <p className="text-xs text-slate-500">Potholes, leaks...</p>
+                <h4 className="font-bold text-slate-800 text-sm">PulseReport</h4>
+                <p className="text-[10px] text-slate-500 font-medium">(Report Issue)</p>
               </div>
             </Link>
 
@@ -47,8 +47,8 @@ export default function CitizenHub() {
                 <Mic className="w-8 h-8" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">Townhall</h4>
-                <p className="text-xs text-slate-500">Vote & Discuss</p>
+                <h4 className="font-bold text-slate-800 text-sm">VoiceAssembly</h4>
+                <p className="text-[10px] text-slate-500 font-medium">(Townhall)</p>
               </div>
             </Link>
 
@@ -57,8 +57,8 @@ export default function CitizenHub() {
                 <Wallet className="w-8 h-8" />
               </div>
               <div>
-                <h4 className="font-bold text-slate-800">Budget</h4>
-                <p className="text-xs text-slate-500">City expenditures</p>
+                <h4 className="font-bold text-slate-800 text-sm">LedgerCivic</h4>
+                <p className="text-[10px] text-slate-500 font-medium">(Budget)</p>
               </div>
             </Link>
 

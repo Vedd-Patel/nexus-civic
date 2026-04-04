@@ -33,11 +33,30 @@ export const getSummary = async (req: Request, res: Response): Promise<void> => 
       return acc;
     }, {});
 
+    const departments = Object.keys(BUDGET_ALLOCATIONS).map(dept => {
+      const allocation = Object.values(BUDGET_ALLOCATIONS[dept]).reduce((a, b) => a + b, 0);
+      const actual = actualSpending[dept] || 0;
+      return {
+        name: dept,
+        allocation: allocation / 1000, // Frontend expects "k"
+        actual: actual / 1000
+      };
+    });
+
+    const anomalies = await BudgetAnomaly.find({}).sort({ createdAt: -1 }).limit(10);
+    const formattedAnomalies = anomalies.map(anom => ({
+      dept: anom.department,
+      category: anom.category,
+      amount: `${(anom.actualTotal - anom.expectedAllocation) / 1000}k`
+    }));
+
     res.status(200).json({
       success: true,
       data: {
         allocations: BUDGET_ALLOCATIONS,
-        actualSpending
+        actualSpending,
+        departments,
+        anomalies: formattedAnomalies
       }
     });
   } catch (error: any) {
