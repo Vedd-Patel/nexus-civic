@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { 
   AlertTriangle, Car, Droplets, Flame, Lightbulb, 
   MapPin, Mic, MoreHorizontal, ShieldAlert, SkipBack, 
@@ -173,9 +174,12 @@ export default function ReportWizardPage() {
         <div className="text-5xl font-black text-indigo-600 mb-8 py-4 px-8 bg-indigo-50 rounded-2xl border border-indigo-200">
           {ticketId}
         </div>
-        <button className="text-lg font-semibold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-8 py-4 rounded-full border border-indigo-200">
+        <Link 
+          href="/"
+          className="inline-block text-lg font-semibold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-8 py-4 rounded-full border border-indigo-200"
+        >
           Track your complaint
-        </button>
+        </Link>
       </div>
     );
   }
