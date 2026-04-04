@@ -11,12 +11,16 @@ export async function triggerPoliceEscalation(event: unknown): Promise<string | 
     return null;
   }
 
-  const baseUrl = process.env.SUPERPLANE_API_URL ?? 'https://api.superplane.ai/v1';
-
   try {
+    const baseUrl = process.env.SUPERPLANE_API_URL ?? 'https://api.superplane.ai/v1';
+    const workflow = process.env.SUPERPLANE_WORKFLOW_ID_GUARDIAN || 'guardian-net-escalation';
+
     const response = await axios.post(
       `${baseUrl}/runs`,
-      { event },
+      { 
+        workflow,
+        event 
+      },
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,

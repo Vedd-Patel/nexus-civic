@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${outfit.variable} ${spaceMono.variable} font-sans bg-[#0D021F] text-white min-h-screen`}>
+      <body className={`${outfit.variable} ${spaceMono.variable} font-sans bg-[#F7F8FC] text-slate-800 min-h-screen antialiased`}>
         {children}
       </body>
     </html>

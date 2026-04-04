@@ -1,6 +1,6 @@
 export default function LoadingDashboard() {
   const Skeleton = ({ className }: { className?: string }) => (
-    <div className={`animate-pulse bg-[#2D1B69] rounded-xl ${className}`} />
+    <div className={`animate-pulse bg-slate-200 rounded-xl ${className}`} />
   );
 
   return (

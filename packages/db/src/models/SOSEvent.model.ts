@@ -29,8 +29,6 @@ const SOSEventSchema = new Schema<ISOSEventDocument>(
   }
 );
 
-// Add 2dsphere index on location for geospatial queries
-SOSEventSchema.index({ 'location.lng': '2dsphere', 'location.lat': '2dsphere' });
 
 /**
  * Static method to find nearby SOS events

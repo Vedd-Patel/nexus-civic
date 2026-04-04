@@ -22,7 +22,10 @@ Required for a basic run:
 - `JWT_SECRET`
 
 Optional (sponsor-track and extended integrations):
-- Everything else in `.env.example` (ElevenLabs, Superplane, ArmorIQ, Solana, SpacetimeDB, Vultr, Firebase, News API, etc.)
+- Everything else in `.env.example` (ElevenLabs, Superplane, ArmorIQ, Solana, SpacetimeDB, Firebase, News API, etc.)
+
+Deployment note:
+- Current project path is GitHub-based delivery and demo runs. Vultr setup can be ignored for now.
 
 Tip for local Docker-only demo setup:
 - Set `MONGODB_URI=mongodb://mongodb:27017/nexus_civic` in `.env` so containers can reach MongoDB by service name.
@@ -63,9 +66,6 @@ cd apps/web && npm run dev
 | GuardianNet | http://localhost:3001/health | 3001 | SOS detection, emergency event lifecycle, response coordination |
 | PulseReport | http://localhost:3002/health | 3002 | Grievance intake, categorization, status workflow, analytics |
 | CivicPulse | http://localhost:3003/health | 3003 | Social signal ingestion, sentiment + urgency scoring, fact-check flows |
-| GigForge | http://localhost:3004/health | 3004 | Local task marketplace, worker matching, fraud-scored listing moderation |
-| NearGive | http://localhost:3005/health | 3005 | Donation intake, quality checks, NGO matching and delivery lifecycle |
-| TerraScan | http://localhost:3006/health | 3006 | Environmental/geospatial risk detection and region-level alerts |
 | SentinelAI | http://localhost:3007/health | 3007 | Risk prediction, patrol dispatch triggers, monitoring intelligence |
 | VoiceAssembly | http://localhost:3008/health | 3008 | Real-time town hall sessions, issue submission, live voting sync |
 | LedgerCivic | http://localhost:3009/health | 3009 | Public spending ledger, anomaly detection, transparency reports |
@@ -88,14 +88,14 @@ cd apps/web && npm run dev
                             |  Unified Dashboard   |
                             +----------+-----------+
                                        |
-        -------------------------------------------------------------------
-        |         |         |         |         |         |         |      |
-+-------v--+ +----v-----+ +--v------+ +--v------+ +--v------+ +--v------+ +--v------+
-|guardian  | |pulse-    | |civic-   | |gig-     | |near-    | |terra-    | |sentinel |
-|net 3001  | |report3002| |pulse3003| |forge3004| |give3005 | |scan3006  | |ai 3007  |
-+----------+ +----------+ +---------+ +---------+ +---------+ +----------+ +---------+
-        |            |            |            |            |            |           |
-        -----------------------------------------------------------------------------
+        -------------------------------------------------------
+        |         |         |         |         |         |   |
++-------v--+ +----v-----+ +--v------+ +--v------+ +--v------+ +--v------+
+|guardian  | |pulse-    | |civic-   | |sentinel | |voice-    | |ledger   |
+|net 3001  | |report3002| |pulse3003| |ai 3007  | |assembly  | |civic3009|
++----------+ +----------+ +---------+ +---------+ |3008      | +---------+
+        |            |            |            |  +----------+      |
+        -------------------------------------------------------------
                                        |
                            +-----------v------------+
                            | Shared Packages         |
@@ -109,8 +109,7 @@ cd apps/web && npm run dev
                                | (models/data)  |
                                +----------------+
 
-+----------------+   +----------------+   +----------------+   +----------------+
-|voice-assembly  |   |ledger-civic    |   |mesh-alert      |   |aura-assist     |
-|3008            |   |3009            |   |3010            |   |3011            |
-+----------------+   +----------------+   +----------------+   +----------------+
++----------------+   +----------------+
+|mesh-alert 3010 |   |aura-assist 3011|
++----------------+   +----------------+
 ```

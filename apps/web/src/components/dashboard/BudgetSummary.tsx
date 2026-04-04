@@ -19,73 +19,99 @@ const MOCK_DATA = {
 
 export default function BudgetSummary() {
   const { data: rawData } = useSWR(`${SERVICE_URLS.ledgerCivic}/api/budget/summary`, fetcher);
-  const data = rawData || MOCK_DATA;
+  const data = {
+    departments: Array.isArray((rawData as any)?.departments)
+      ? (rawData as any).departments
+      : Array.isArray((rawData as any)?.data?.departments)
+        ? (rawData as any).data.departments
+        : MOCK_DATA.departments,
+    anomalies: Array.isArray((rawData as any)?.anomalies)
+      ? (rawData as any).anomalies
+      : Array.isArray((rawData as any)?.data?.anomalies)
+        ? (rawData as any).data.anomalies
+        : MOCK_DATA.anomalies,
+  };
 
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [asking, setAsking] = useState(false);
 
-  const handleAsk = () => {
+  const handleAsk = async () => {
     if (!question) return;
     setAsking(true);
-    setTimeout(() => {
-      setAnswer("Based on the Solana ledger analysis, Police overtime spiked due to emergency response events in Sector 7G. Sanitation vehicle repair budget was exceeded due to aging fleet maintenance.");
+    try {
+      const res = await fetch(`${SERVICE_URLS.ledgerCivic}/api/budget/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setAnswer(json.data);
+      } else {
+        setAnswer("Failed to process request. AI might be temporarily unavailable.");
+      }
+    } catch {
+      setAnswer("Failed to query AI assistant. Network error.");
+    } finally {
       setAsking(false);
       setQuestion('');
-    }, 1500);
+    }
   };
 
   return (
-    <div className="bg-[#1A0533] p-6 rounded-xl border border-purple-900/50 h-[400px] flex flex-col relative w-full overflow-hidden">
-      <h2 className="text-xl font-bold font-outfit text-white mb-2">LedgerCivic Budget Analysis</h2>
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex flex-col relative w-full overflow-hidden">
+      <h2 className="text-xl font-bold font-outfit text-slate-800 mb-2">LedgerCivic Budget Analysis</h2>
       
       <div className="h-40 w-full mb-4 shrink-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data.departments} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff1a" vertical={false} />
-            <XAxis dataKey="name" stroke="#a78bfa" fontSize={10} tickLine={false} axisLine={false} />
-            <YAxis stroke="#a78bfa" fontSize={10} tickLine={false} axisLine={false} />
-            <Tooltip contentStyle={{ backgroundColor: '#1A0533', border: '1px solid #4c1d95', borderRadius: '8px' }} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" vertical={false} />
+            <XAxis dataKey="name" stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis stroke="#94A3B8" fontSize={10} tickLine={false} axisLine={false} />
+            <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #E2E8F0', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)' }} />
             <Legend wrapperStyle={{ fontSize: '10px' }} />
-            <Bar dataKey="allocation" fill="#8B5CF6" radius={[4, 4, 0, 0]} name="Allocation (k)" />
+            <Bar dataKey="allocation" fill="#818CF8" radius={[4, 4, 0, 0]} name="Allocation (k)" />
             <Bar dataKey="actual" fill="#FBBF24" radius={[4, 4, 0, 0]} name="Actual (k)" />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
-      <div className="flex-1 overflow-y-auto mb-2 space-y-2 pr-1 custom-scrollbar shrink-0">
-        {data.anomalies.map((anom: any, idx: number) => (
-          <div key={idx} className="bg-red-950/40 border border-red-500/50 p-2 rounded flex justify-between items-center text-xs">
+      <div className="flex-1 overflow-y-auto mb-2 space-y-2 pr-1 shrink-0">
+        {data.anomalies.map((anom: any, idx: number) => {
+          if (!anom || typeof anom !== 'object') return null;
+          return (
+          <div key={idx} className="bg-red-50 border border-red-200 p-2 rounded-md flex justify-between items-center text-xs">
             <div>
-              <span className="font-bold text-red-400">{anom.dept}</span> - <span className="text-gray-300">{anom.category}</span>
+              <span className="font-bold text-red-600">{anom.dept}</span> - <span className="text-slate-600">{anom.category}</span>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-red-300 font-space-mono">+{anom.amount}</span>
-              <a href="https://explorer.solana.com" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 underline">View on Solana ↗</a>
+              <span className="text-red-500 font-space-mono font-medium">+{anom.amount}</span>
+              <a href="https://explorer.solana.com" target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-800 font-medium">View on Solana ↗</a>
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
-      <div className="mt-auto pt-2 border-t border-purple-900/50 relative shrink-0">
+      <div className="mt-auto pt-2 border-t border-slate-200 relative shrink-0">
         <div className="flex gap-2">
           <input 
             type="text" 
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-            className="flex-1 bg-gray-900/80 border border-gray-700 rounded p-1.5 text-xs text-white placeholder-gray-500 focus:border-purple-500 outline-none" 
+            className="flex-1 bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-xs text-slate-800 placeholder-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" 
             placeholder="Ask AI about spending..."
           />
-          <button onClick={handleAsk} disabled={asking} className="bg-purple-600 hover:bg-purple-500 text-white px-3 py-1.5 rounded text-xs transition-colors">
+          <button onClick={handleAsk} disabled={asking} className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs transition-colors shadow-sm">
             {asking ? '...' : 'Ask'}
           </button>
         </div>
         {answer && (
-          <div className="absolute bottom-full mb-2 right-0 left-0 bg-[#2D1B69] p-3 rounded-lg border border-purple-500 shadow-xl text-xs text-purple-100 z-10">
+          <div className="absolute bottom-full mb-2 right-0 left-0 bg-white p-3 rounded-lg border border-indigo-200 shadow-lg text-xs text-slate-700 z-10">
             <div className="flex justify-between items-start mb-1">
-              <strong>✨ Gemini AI Insight</strong>
-              <button onClick={() => setAnswer('')} className="text-gray-400 hover:text-white">✕</button>
+              <strong className="text-indigo-600">✨ Gemini AI Insight</strong>
+              <button onClick={() => setAnswer('')} className="text-slate-400 hover:text-slate-700">✕</button>
             </div>
             {answer}
           </div>

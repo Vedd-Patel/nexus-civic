@@ -1,0 +1,150 @@
+NEXUS CIVIC - MENTOR STATUS UPDATE
+Date: 2026-04-04
+Prepared by: Team engineering session summary
+
+==================================================
+1) EXECUTIVE SUMMARY
+==================================================
+The project was moved from partial setup to demo-ready core functionality.
+Major work completed includes:
+- Environment hardening and key configuration (Solana + GEE + Mongo for Docker)
+- Documentation cleanup to remove drift and align with active modules
+- End-to-end readiness execution (compose up, health checks, seed, smoke)
+- Runtime fixes for service startup issues and missing health endpoints
+- Frontend stability fixes for client-side exceptions on dashboard/user flows
+- Validation of user-facing routes for mentor demos
+
+Current status: Core stack is operational, seeded, and demo-capable for user journeys.
+
+
+==================================================
+2) WHAT WAS IMPLEMENTED
+==================================================
+A) Solana + Blockchain Config Validation
+- Verified Solana private key format in .env is valid and parseable by service code.
+- Confirmed runtime creation of keypair from env value.
+- Set SOLANA_PROGRAM_ID to Solana Memo Program ID used by current code path:
+  MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr
+- Confirmed ledger-civic utility reads and uses these values correctly.
+
+B) GEE Service Account Integration
+- Inserted GEE service-account JSON into .env as a single-line JSON env value.
+- Verified placement and availability for runtime consumption.
+
+C) Database Runtime Normalization (Docker)
+- Resolved inconsistent Mongo targets by switching to Docker-local Mongo service.
+- Set both env keys for compatibility across services:
+  - MONGODB_URI=mongodb://mongodb:27017/nexus_civic
+  - MONGO_URI=mongodb://mongodb:27017/nexus_civic
+- Recreated stack with corrected env configuration.
+
+D) Service Startup and Health Fixes
+- Fixed voice-assembly crash caused by missing dependency.
+- Added dependency:
+  - socks (in services/voice-assembly/package.json)
+- Added missing /health endpoints to:
+  - services/sentinel-ai/src/index.ts
+  - services/voice-assembly/src/index.ts
+- Rebuilt/restarted services and revalidated health responses.
+
+E) Frontend Stability Fixes (White Theme Preserved)
+- Investigated client-side exception reports on localhost:3000.
+- Added defensive guards for malformed/null API payloads in dashboard components:
+  - CivicPulseFeed.tsx
+  - GrievanceQueue.tsx
+  - RiskZones.tsx
+  - AuraAuditLog.tsx
+  - BudgetSummary.tsx
+- Preserved white/light theme work while improving runtime resilience.
+
+F) Documentation Drift Cleanup
+Updated files to reflect actual active modules and current project state:
+- README.md
+- TEAMMATE_SETUP.md
+- SPONSOR_TRACKS.md
+- PROJECT_PROGRESS.md
+Added:
+- JUDGE_READY_CHECKLIST.md
+
+Result: Mentor/judge narrative now matches real codebase behavior.
+
+
+==================================================
+3) VALIDATION RUNS COMPLETED
+==================================================
+A) Infrastructure + Services
+- docker compose up -d executed
+- Health checks run across web + service endpoints
+- After fixes, core health checks reported passing
+
+B) Data + Flow Validation
+- Seed run successful (database populated)
+- Smoke mission script executed successfully
+- Some admin-protected checks were skipped when tokens were not provided
+  (expected behavior)
+
+C) User Route Validation
+- Verified user-side pages respond successfully:
+  - /report
+  - /safety
+  - /townhall
+  - /budget
+- Verified no client-side exception banner on tested user routes.
+- Confirmed removed pages currently return 404 by design:
+  - /donate
+  - /gigs
+
+
+==================================================
+4) FILES/AREAS TO HIGHLIGHT IN MENTOR PRESENTATION
+==================================================
+Environment and config:
+- .env (Solana, Mongo, GEE, SpacetimeDB settings)
+
+Service reliability:
+- services/voice-assembly/package.json (missing dependency fix)
+- services/sentinel-ai/src/index.ts (/health)
+- services/voice-assembly/src/index.ts (/health)
+
+Frontend robustness:
+- apps/web/src/components/dashboard/* (runtime guard improvements)
+
+Project narrative and readiness:
+- PROJECT_PROGRESS.md
+- JUDGE_READY_CHECKLIST.md
+- README.md
+
+
+==================================================
+5) CURRENT READINESS STATEMENT
+==================================================
+The project is in a strong demo-ready state for mentor walkthroughs focused on:
+- Citizen-facing web journeys (report, safety, townhall, budget)
+- Microservice architecture health and observability
+- Seeded data and mission flow demonstrations
+- Sponsor-track integration points (configured and documented)
+
+
+==================================================
+6) KNOWN LIMITATIONS / OPTIONAL NEXT IMPROVEMENTS
+==================================================
+- Full smoke coverage for protected admin endpoints requires valid auth tokens.
+- Optional UX improvement: add redirects for removed routes (/donate, /gigs).
+- Optional compose cleanup: remove deprecated compose version warning entries.
+- Security hygiene recommendation: rotate any secrets shared during setup discussion.
+
+
+==================================================
+7) MENTOR DEMO SCRIPT (SHORT)
+==================================================
+1. Show stack health and architecture (web + service endpoints).
+2. Show seeded data flow and mission smoke validation.
+3. Open user pages: /report, /safety, /townhall, /budget.
+4. Explain reliability fixes:
+   - missing dependency resolved
+   - health endpoints added
+   - frontend payload guards added
+5. Close with readiness checklist and remaining optional tasks.
+
+
+End of report.

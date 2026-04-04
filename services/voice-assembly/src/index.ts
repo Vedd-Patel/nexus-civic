@@ -28,6 +28,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('combined', { stream: { write: (message: string) => logger.info(message.trim()) } }));
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', service: 'voice-assembly' });
+});
+
 app.use('/api/sessions', sessionRoutes);
 app.use(errorHandler);
 

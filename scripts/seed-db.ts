@@ -612,7 +612,7 @@ async function seedTownHall(userIds: Record<string, string>): Promise<void> {
 
 async function seedAiAuditLogs(userIds: Record<string, string>): Promise<void> {
   const rolePool = [UserRole.ADMIN, UserRole.OFFICER, UserRole.CITIZEN, UserRole.NGO];
-  const modulePool = ['aura-assist', 'sentinel-ai', 'ledger-civic', 'near-give'];
+  const modulePool = ['aura-assist', 'sentinel-ai', 'ledger-civic', 'civic-pulse'];
   const allowedActions = ['summarize_report', 'create_alert_brief', 'draft_response', 'fetch_policy'];
   const blockedActions = ['bulk_export_pii', 'override_budget_limits', 'disable_guardrails', 'elevate_role'];
 

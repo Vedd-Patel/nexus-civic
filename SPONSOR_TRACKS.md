@@ -43,10 +43,9 @@ What to post:
 - One screenshot/video and one call-to-action.
 
 ## Gemini (Swag Kits)
-How implemented (6 modules):
+How implemented (5 modules):
 - PulseReport: civic grievance reasoning/summarization hooks.
 - CivicPulse: social signal understanding and fact-check style insights.
-- TerraScan: geospatial/environmental alert report generation.
 - SentinelAI: predictive reasoning narratives for risk outputs.
 - VoiceAssembly: conversational augmentation for session interactions.
 - AuraAssist: assistant responses with policy-aware AI processing.
@@ -61,7 +60,6 @@ How implemented:
 Key queries worth showing:
 - SOS by status/severity and recent window (GuardianNet).
 - Grievance queue by category + status + district (PulseReport).
-- Donation lifecycle by status and NGO match (NearGive).
 - Expenditure anomalies by department over time (LedgerCivic).
 - AI audit allow/block trend by time (AuraAssist/SentinelAI).
 
@@ -75,7 +73,7 @@ Judge demo:
 
 ## Vultr (Projectors)
 How implemented:
-- Multi-service deployment target for all modules with environment-driven configuration.
+- Optional multi-service deployment target with environment-driven configuration.
 
 Deployment command pattern:
 ```bash
@@ -84,7 +82,15 @@ docker compose up -d
 ```
 
 Judge demo:
-- Show all services healthy and accessible through published ports/API health routes.
+- Skip for current run. Deployment focus is GitHub-based demo workflow right now.
+
+## GitHub Delivery (Current Focus)
+How implemented:
+- Monorepo is organized for repository-first delivery with reproducible local/demo runs.
+- Health checks, seed scripts, and smoke scripts support PR verification before final demo.
+
+Judge demo:
+- Show repository structure, then run seed + smoke flow and share passing outputs.
 
 ## Solana (Ledger Nano)
 How implemented:
@@ -95,7 +101,7 @@ Judge demo:
 - Open Budget view, click a Solana explorer link, and show transaction-level transparency context.
 
 ## Quick Sponsor Pitch Flow (90 seconds)
-- 0-20s: Problem + platform architecture (11 services, shared packages, unified dashboard).
+- 0-20s: Problem + platform architecture (8 backend services + web, shared packages, unified dashboard).
 - 20-45s: Live safety + grievance + AI audit evidence.
 - 45-65s: Real-time town hall and policy-gated assistant behavior.
-- 65-90s: Transparency proof (Solana links) and production-readiness (Docker + cloud deployment path).
+- 65-90s: Transparency proof (Solana links) and production-readiness (Docker + GitHub delivery path).

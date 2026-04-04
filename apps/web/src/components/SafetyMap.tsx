@@ -30,14 +30,24 @@ export default function SafetyMap({ userLocation }: SafetyMapProps) {
   const [incidents, setIncidents] = useState<{lat: number, lng: number, desc: string}[]>([]);
 
   useEffect(() => {
-    if (userLocation) {
-      // Generate some mock nearby incidents
-      setIncidents([
-        { lat: userLocation.lat + 0.005, lng: userLocation.lng + 0.005, desc: 'Suspicious Activity Reported' },
-        { lat: userLocation.lat - 0.003, lng: userLocation.lng + 0.008, desc: 'Streetlight Outage' },
-        { lat: userLocation.lat + 0.004, lng: userLocation.lng - 0.006, desc: 'Noise Complaint' }
-      ]);
+    async function loadData() {
+      if (!userLocation) return;
+      try {
+        const url = process.env.NEXT_PUBLIC_PULSE_REPORT_URL || 'http://localhost:3002';
+        const res = await fetch(`${url}/api/grievances?status=OPEN&public=1&limit=50`);
+        const result = await res.json();
+        const data = Array.isArray(result) ? result : Array.isArray(result?.data) ? result.data : [];
+        const mapped = data.map((g: any) => ({
+          lat: g.location?.lat,
+          lng: g.location?.lng,
+          desc: g.title || g.category
+        })).filter((x: any) => x.lat && x.lng);
+        setIncidents(mapped);
+      } catch (e) {
+        console.error('Failed to load map incidents', e);
+      }
     }
+    loadData();
   }, [userLocation]);
 
   const defaultCenter = { lat: 37.7749, lng: -122.4194 }; // SF default

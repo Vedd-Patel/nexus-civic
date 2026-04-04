@@ -18,6 +18,10 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok', service: 'sentinel-ai' });
+});
+
 // Routes
 app.use('/api', predictionRoutes);
 

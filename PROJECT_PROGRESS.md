@@ -27,7 +27,7 @@ Date: 4 April 2026
 - Unified frontend experience (dashboard + role-oriented workflows) on web app.
 - Shared model/type layer using workspace packages for consistent API contracts.
 - Demo dataset generation for judge-ready storytelling.
-- Sponsor-track mapping covering Gemini, MongoDB, Solana, Superplane, ArmorIQ, SpacetimeDB, ElevenLabs, Vultr, and ROVO positioning.
+- Sponsor-track mapping covering Gemini, MongoDB, Solana, Superplane, ArmorIQ, SpacetimeDB, ElevenLabs, and ROVO positioning.
 
 ## Tech Stack of the project.
 - Language: TypeScript (Node.js runtime)
@@ -43,7 +43,7 @@ Date: 4 April 2026
 - Integrations used in project scope:
   - Gemini API
   - Solana explorer/signature linkage
-  - Sponsor-oriented hooks for Superplane, ArmorIQ, SpacetimeDB, ElevenLabs, Vultr
+  - Sponsor-oriented hooks for Superplane, ArmorIQ, SpacetimeDB, ElevenLabs
 
 ## Project High Level Architecture (if any)
 ```text
@@ -81,4 +81,5 @@ Date: 4 April 2026
 - Complete stable `docker compose up -d` for full stack without intermittent build failures.
 - Verify health for all service ports and validate end-to-end API wiring.
 - Run final seed + [scripts/demo.sh](scripts/demo.sh) before presentation window.
+- Finalize GitHub delivery/readme/checklist package for judges.
 - Lock final demo flow and create one fallback plan per critical feature.

@@ -36,16 +36,16 @@ export default function KPICard({ title, value, trend, icon, accentColor, isLive
 
   return (
     <div 
-      className="bg-[#1A0533] rounded-xl p-4 relative overflow-hidden border-l-4 shadow-lg flex flex-col justify-between"
+      className="bg-white rounded-xl p-4 relative overflow-hidden border-l-4 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
       style={{ borderLeftColor: accentColor }}
     >
       <div className="flex justify-between items-start mb-2">
-        <span className="text-gray-400 text-sm font-medium">{title}</span>
+        <span className="text-slate-500 text-sm font-medium">{title}</span>
         <span className="text-xl">{icon}</span>
       </div>
       
       <div className="flex items-baseline space-x-1">
-        <span className="text-3xl font-bold text-white font-space-mono">
+        <span className="text-3xl font-bold text-slate-800 font-space-mono">
           {displayValue}{unit}
         </span>
         {isLive && (
@@ -57,10 +57,10 @@ export default function KPICard({ title, value, trend, icon, accentColor, isLive
       </div>
 
       <div className="mt-2 text-sm">
-        <span className={trend >= 0 ? "text-green-400" : "text-red-400"}>
+        <span className={trend >= 0 ? "text-emerald-600 font-medium" : "text-red-500 font-medium"}>
           {trend >= 0 ? '↗' : '↘'} {Math.abs(trend)}%
         </span>
-        <span className="text-gray-500 ml-2 text-xs">vs last week</span>
+        <span className="text-slate-400 ml-2 text-xs">vs last week</span>
       </div>
     </div>
   );

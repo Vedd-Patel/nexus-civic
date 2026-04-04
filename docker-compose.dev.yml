@@ -22,20 +22,6 @@ services:
     healthcheck:
       disable: true
 
-  gig-forge:
-    command: npm run dev
-    volumes:
-      - ./services/gig-forge/src:/app/src
-    healthcheck:
-      disable: true
-
-  near-give:
-    command: npm run dev
-    volumes:
-      - ./services/near-give/src:/app/src
-    healthcheck:
-      disable: true
-
   ledger-civic:
     command: npm run dev
     volumes:
@@ -54,13 +40,6 @@ services:
     command: npm run dev
     volumes:
       - ./services/sentinel-ai/src:/app/src
-    healthcheck:
-      disable: true
-
-  terra-scan:
-    command: npm run dev
-    volumes:
-      - ./services/terra-scan/src:/app/src
     healthcheck:
       disable: true
 

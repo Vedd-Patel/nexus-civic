@@ -10,25 +10,31 @@ const MOCK_DATA = [
 ];
 
 export default function GrievanceQueue() {
-  const { data: rawData } = useSWR(`${SERVICE_URLS.pulseReport}/api/grievances?status=open&limit=20`, fetcher, { refreshInterval: 30000 });
-  const data = rawData || MOCK_DATA;
+  const { data: rawData } = useSWR(`${SERVICE_URLS.pulseReport}/api/grievances?public=1&status=OPEN&limit=20`, fetcher, { refreshInterval: 30000 });
+  const data = Array.isArray(rawData)
+    ? rawData
+    : Array.isArray((rawData as any)?.grievances)
+      ? (rawData as any).grievances
+      : Array.isArray((rawData as any)?.data)
+        ? (rawData as any).data
+        : MOCK_DATA;
 
   const getPriorityStyle = (p: string) => {
     switch(p) {
-      case 'CRITICAL': return 'bg-red-600 animate-pulse text-white';
-      case 'HIGH': return 'bg-orange-500 text-white';
-      case 'MEDIUM': return 'bg-yellow-500 text-black';
-      case 'LOW': return 'bg-gray-600 text-white';
-      default: return 'bg-gray-600 text-white';
+      case 'CRITICAL': return 'bg-red-100 text-red-700 border border-red-200 animate-pulse';
+      case 'HIGH': return 'bg-orange-100 text-orange-700 border border-orange-200';
+      case 'MEDIUM': return 'bg-amber-100 text-amber-700 border border-amber-200';
+      case 'LOW': return 'bg-slate-100 text-slate-600 border border-slate-200';
+      default: return 'bg-slate-100 text-slate-600 border border-slate-200';
     }
   };
 
   return (
-    <div className="bg-[#1A0533] p-6 rounded-xl border border-purple-900/50 h-[400px] flex flex-col">
-      <h2 className="text-xl font-bold font-outfit text-white mb-4">Grievance Queue</h2>
+    <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-[400px] flex flex-col">
+      <h2 className="text-xl font-bold font-outfit text-slate-800 mb-4">Grievance Queue</h2>
       <div className="overflow-y-auto flex-1 pr-2">
         <table className="w-full text-sm text-left">
-          <thead className="text-xs text-gray-400 uppercase bg-gray-800/50 sticky top-0">
+          <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0">
             <tr>
               <th className="px-4 py-3 rounded-tl-lg">Ticket ID</th>
               <th className="px-4 py-3">Category</th>
@@ -40,25 +46,31 @@ export default function GrievanceQueue() {
             </tr>
           </thead>
           <tbody>
-            {data.map((item: any, idx: number) => (
-              <tr key={idx} className={`border-b border-gray-700/50 hover:bg-gray-800/30 transition-colors ${item.priority === 'CRITICAL' ? 'border shadow-[0_0_10px_rgba(220,38,38,0.5)] border-red-500/50' : ''}`}>
-                <td className="px-4 py-3 font-space-mono text-purple-300">{item.id}</td>
+            {data.map((item: any, idx: number) => {
+              if (!item || typeof item !== 'object') return null;
+              return (
+              <tr key={String(item?.id ?? idx)} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${item.priority === 'CRITICAL' ? 'bg-red-50/50 border-l-2 border-l-red-400' : ''}`}>
+                <td className="px-4 py-3 font-space-mono text-indigo-600 font-medium">{item.ticketId || item.id}</td>
                 <td className="px-4 py-3">
-                  <span className="px-2 py-1 rounded bg-indigo-900/50 text-indigo-200 border border-indigo-700/50">{item.category}</span>
+                  <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium">{item.category}</span>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded text-xs font-bold ${getPriorityStyle(item.priority)}`}>
+                  <span className={`px-2 py-1 rounded-md text-xs font-bold ${getPriorityStyle(item.priority)}`}>
                     {item.priority}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-300">{item.location}</td>
-                <td className="px-4 py-3 text-gray-400">{item.time}</td>
-                <td className="px-4 py-3 text-gray-300">{item.status}</td>
+                <td className="px-4 py-3 text-slate-600">
+                  {typeof item.location === 'object' ? (item.location?.address || item.district || 'Unknown') : (item.location || item.district || 'Unknown')}
+                </td>
+                <td className="px-4 py-3 text-slate-400">
+                  {item.createdAt ? new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : item.time}
+                </td>
+                <td className="px-4 py-3 text-slate-600">{item.status}</td>
                 <td className="px-4 py-3">
-                  <button className="text-indigo-400 hover:text-indigo-300 underline text-xs">Resolve</button>
+                  <button className="text-indigo-600 hover:text-indigo-800 font-medium text-xs">Resolve</button>
                 </td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>

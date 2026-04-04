@@ -17,7 +17,7 @@ const router = Router();
 
 router.post('/api/grievances', optionalAuth, validate(createGrievanceSchema), asyncHandler(submitGrievance));
 
-router.get('/api/grievances', authenticate, asyncHandler(listGrievances));
+router.get('/api/grievances', optionalAuth, asyncHandler(listGrievances));
 
 router.get('/api/grievances/:id', authenticate, asyncHandler(getGrievance));
 

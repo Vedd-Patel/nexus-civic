@@ -1,0 +1,50 @@
+NEXUS CIVIC - SETUP TODO (4 April 2026)
+STATUS: MOSTLY COMPLETE ✅
+
+1) MUST-SET CONFIG FOR STABLE LOCAL RUN ✅ DONE
+- MONGODB_URI ✅ set (Atlas cluster)
+- JWT_SECRET ✅ set (64-byte hex)
+- GEMINI_API_KEY ✅ set
+- ELEVENLABS_API_KEY ✅ set
+- Core service URLs aligned with actual running service ports ✅
+
+2) SERVICE PORT MAP (FINAL - 8 services)
+- web:            3000 (Next.js frontend)
+- guardian-net:   3001
+- pulse-report:   3002
+- civic-pulse:    3003
+- sentinel-ai:    3007
+- voice-assembly: 3008
+- ledger-civic:   3009
+- mesh-alert:     3010
+- aura-assist:    3011
+
+3) REMAINING PLACEHOLDER .env KEYS (optional - have fallbacks)
+- ARMORIQ_API_KEY          → local ZTA engine used instead
+- FIREBASE_SERVICE_ACCOUNT → push notifications disabled
+- NEWS_API_KEY             → mock data used
+- SOLANA_PROGRAM_ID        → SOLANA_ENABLED=false, mock sigs used
+- SOLANA_WALLET_PRIVATE_KEY→ same as above
+- SUPERPLANE_API_KEY       → escalation/pipelines skipped
+- SUPERPLANE_WORKFLOW_IDs  → same as above
+- VULTR_API_KEY            → only needed for cloud deploy
+
+4) COMPLETED FIXES ✅
+- Removed gig-forge, near-give, terra-scan from all configs
+- docker-compose.yml: ports aligned (ledger-civic→3009, mesh-alert→3010, sentinel-ai→3007, voice-assembly→3008)
+- docker-compose.dev.yml: removed 3 missing service overrides
+- docker-compose.prod.yml: ports aligned
+- .env, .env.example, .env.production.example: removed missing service ports/URLs
+- aura-assist SERVICE_URLS map: removed 3 missing services
+- ArmorIQ policyEngine: removed from ALL_KNOWN_MODULES + role policies
+- smoke test scripts: removed NearGive/TerraScan sections
+- seed-db.ts: removed near-give from AI audit log module pool
+
+5) OPTIONAL VALIDATION CHECKLIST
+- docker compose up -d
+- Verify health endpoints for active services
+- npm run seed
+- Run demo script and confirm dashboard + critical APIs
+
+6) MOBILE NOTE
+- Set EXPO_PUBLIC_GUARDIAN_NET_URL (current fallback points to localhost:3000, not guardian API)

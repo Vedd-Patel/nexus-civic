@@ -50,10 +50,10 @@ export const POLICIES: Record<string, RolePolicy> = {
     allowedModules: [
       'pulse-report',
       'guardian-net',
-      'near-give',
       'voice-assembly',
-      'gig-forge',
       'ledger-civic',
+      'civic-pulse',
+      'mesh-alert',
     ],
   },
   officer: {
@@ -75,7 +75,7 @@ export const POLICIES: Record<string, RolePolicy> = {
   },
   ngo: {
     allowedActions: ['view_assigned_donations', 'update_donation_status', 'view_own_ngo_profile'],
-    allowedModules: ['near-give'],
+    allowedModules: ['ledger-civic'],
   },
 };
 
@@ -117,12 +117,9 @@ export const ALL_KNOWN_ACTIONS = [
 export const ALL_KNOWN_MODULES = [
   'pulse-report',
   'guardian-net',
-  'near-give',
   'voice-assembly',
-  'gig-forge',
   'ledger-civic',
   'sentinel-ai',
-  'terra-scan',
   'civic-pulse',
   'mesh-alert',
   'aura-assist',

@@ -245,6 +245,7 @@ export async function listGrievances(req: Request, res: Response): Promise<void>
   const page = Math.max(1, Number(req.query.page ?? 1));
   const limit = Math.max(1, Math.min(100, Number(req.query.limit ?? 20)));
   const user = req.user as AuthUser | undefined;
+  const allowPublicRead = req.query.public === '1';
 
   const filter: Record<string, unknown> = {};
   if (typeof req.query.status === 'string') {
@@ -267,11 +268,15 @@ export async function listGrievances(req: Request, res: Response): Promise<void>
     }
     filter.departmentId = user.departmentId;
   } else if (user?.role !== 'admin') {
+    if (allowPublicRead) {
+      filter.status = typeof req.query.status === 'string' ? req.query.status : 'OPEN';
+    } else {
     if (!user?.id) {
       res.status(401).json(errorResponse('Unauthorized', 401));
       return;
     }
     filter.userId = user.id;
+    }
   }
 
   const [rows, total] = await Promise.all([

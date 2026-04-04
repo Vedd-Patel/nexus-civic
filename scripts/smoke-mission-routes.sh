@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -u
 
-# Mission smoke test for:
-# - NearGive (3005)
-# - TerraScan (3006)
+# Smoke test for active services:
 # - SentinelAI (3007)
 #
 # Usage:
@@ -11,12 +9,8 @@ set -u
 #   ADMIN_TOKEN=<jwt> OFFICER_TOKEN=<jwt> ./scripts/smoke-mission-routes.sh
 #
 # Optional env vars:
-#   BASE_NEAR_GIVE=http://localhost:3005
-#   BASE_TERRA_SCAN=http://localhost:3006
 #   BASE_SENTINEL_AI=http://localhost:3007
 
-BASE_NEAR_GIVE="${BASE_NEAR_GIVE:-http://localhost:3005}"
-BASE_TERRA_SCAN="${BASE_TERRA_SCAN:-http://localhost:3006}"
 BASE_SENTINEL_AI="${BASE_SENTINEL_AI:-http://localhost:3007}"
 
 ADMIN_TOKEN="${ADMIN_TOKEN:-}"
@@ -24,8 +18,6 @@ OFFICER_TOKEN="${OFFICER_TOKEN:-}"
 
 PASS=0
 FAIL=0
-DONATION_ID=""
-ANALYSIS_JOB_ID=""
 PREDICTION_ID=""
 
 print_step() {
@@ -91,80 +83,6 @@ extract_json_field() {
   rm -f "$tmp_body"
   printf "%s" "$value"
 }
-
-print_step "NearGive" "Checking donation and NGO routes on ${BASE_NEAR_GIVE}"
-
-run_request "GET /api/donations (public)" "200" \
-  -X GET "${BASE_NEAR_GIVE}/api/donations"
-
-run_request "POST /api/donations (optionalAuth + multer, no file fallback)" "201" \
-  -X POST "${BASE_NEAR_GIVE}/api/donations" \
-  -H "Content-Type: application/json" \
-  -d '{"itemName":"Blanket","category":"clothing","description":"Gently used blanket","lat":19.0760,"lng":72.8777,"address":"Mumbai"}'
-
-DONATION_ID="$(extract_json_field "${BASE_NEAR_GIVE}/api/donations" "data.0._id")"
-
-if [[ -n "$DONATION_ID" ]]; then
-  run_request "GET /api/donations/:id (public)" "200" \
-    -X GET "${BASE_NEAR_GIVE}/api/donations/${DONATION_ID}"
-
-  if [[ -n "$ADMIN_TOKEN" ]]; then
-    run_request "PATCH /api/donations/:id (authenticate)" "200" \
-      -X PATCH "${BASE_NEAR_GIVE}/api/donations/${DONATION_ID}" \
-      -H "Authorization: Bearer ${ADMIN_TOKEN}" \
-      -H "Content-Type: application/json" \
-      -d '{"status":"COLLECTED"}'
-  else
-    printf "SKIP  PATCH /api/donations/:id (set ADMIN_TOKEN to test authenticated path)\n"
-  fi
-else
-  printf "SKIP  GET/PATCH donation by id (could not infer DONATION_ID)\n"
-fi
-
-if [[ -n "$ADMIN_TOKEN" ]]; then
-  run_request "POST /api/ngos (admin only)" "201" \
-    -X POST "${BASE_NEAR_GIVE}/api/ngos" \
-    -H "Authorization: Bearer ${ADMIN_TOKEN}" \
-    -H "Content-Type: application/json" \
-    -d '{"name":"Helping Hands NGO","location":{"lat":19.082,"lng":72.88,"address":"Andheri"},"acceptedCategories":["clothing","food"],"maxCapacity":200,"currentLoad":10,"rating":4.6,"verified":true,"contactEmail":"ops@helpinghands.org"}'
-else
-  printf "SKIP  POST /api/ngos (set ADMIN_TOKEN to test admin path)\n"
-fi
-
-run_request "GET /api/ngos/nearby (public)" "200" \
-  -X GET "${BASE_NEAR_GIVE}/api/ngos/nearby?lat=19.0760&lng=72.8777&radiusKm=5"
-
-print_step "TerraScan" "Checking analysis and alerts routes on ${BASE_TERRA_SCAN}"
-
-if [[ -n "$ADMIN_TOKEN" ]]; then
-  run_request "POST /api/analysis/trigger (admin only)" "202" \
-    -X POST "${BASE_TERRA_SCAN}/api/analysis/trigger" \
-    -H "Authorization: Bearer ${ADMIN_TOKEN}" \
-    -H "Content-Type: application/json" \
-    -d '{"regionName":"Central Ward","regionPolygon":{"type":"Polygon","coordinates":[[[72.85,19.05],[72.90,19.05],[72.90,19.10],[72.85,19.10],[72.85,19.05]]]}}'
-
-  ANALYSIS_JOB_ID="$(extract_json_field "${BASE_TERRA_SCAN}/api/analysis/trigger" "jobId" "Authorization" "Bearer ${ADMIN_TOKEN}")"
-  if [[ -z "$ANALYSIS_JOB_ID" ]]; then
-    ANALYSIS_JOB_ID="manual-job-id"
-  fi
-else
-  printf "SKIP  POST /api/analysis/trigger (set ADMIN_TOKEN to test admin path)\n"
-  ANALYSIS_JOB_ID="manual-job-id"
-fi
-
-run_request "GET /api/analysis/:jobId (public)" "200" \
-  -X GET "${BASE_TERRA_SCAN}/api/analysis/${ANALYSIS_JOB_ID}"
-
-run_request "GET /api/alerts (public)" "200" \
-  -X GET "${BASE_TERRA_SCAN}/api/alerts?page=1&limit=5"
-
-ALERT_ID="$(extract_json_field "${BASE_TERRA_SCAN}/api/alerts?page=1&limit=1" "alerts.0._id")"
-if [[ -n "$ALERT_ID" ]]; then
-  run_request "GET /api/alerts/:id (public)" "200" \
-    -X GET "${BASE_TERRA_SCAN}/api/alerts/${ALERT_ID}"
-else
-  printf "SKIP  GET /api/alerts/:id (no alert available yet)\n"
-fi
 
 print_step "SentinelAI" "Checking predictions and dispatch routes on ${BASE_SENTINEL_AI}"
 

@@ -24,9 +24,6 @@ const SERVICE_URLS: Record<string, string> = {
   'guardian-net': process.env.GUARDIAN_NET_URL ?? 'http://guardian-net:3001',
   'pulse-report': process.env.PULSE_REPORT_URL ?? 'http://pulse-report:3002',
   'civic-pulse': process.env.CIVIC_PULSE_URL ?? 'http://civic-pulse:3003',
-  'gig-forge': process.env.GIG_FORGE_URL ?? 'http://gig-forge:3004',
-  'near-give': process.env.NEAR_GIVE_URL ?? 'http://near-give:3005',
-  'terra-scan': process.env.TERRA_SCAN_URL ?? 'http://terra-scan:3006',
   'sentinel-ai': process.env.SENTINEL_AI_URL ?? 'http://sentinel-ai:3007',
   'voice-assembly': process.env.VOICE_ASSEMBLY_URL ?? 'http://voice-assembly:3008',
   'ledger-civic': process.env.LEDGER_CIVIC_URL ?? 'http://ledger-civic:3009',
@@ -104,8 +101,33 @@ export async function handleQuery(req: Request, res: Response): Promise<void> {
     ? await gemini.detectIntent(text, ALL_KNOWN_ACTIONS, ALL_KNOWN_MODULES)
     : { action: 'unknown', module: 'aura-assist' };
 
-  const action = intent.action;
-  const moduleName = intent.module;
+  let action = intent.action;
+  let moduleName = intent.module;
+
+  if (action === 'unknown' || moduleName === 'unknown' || action === 'none' || moduleName === 'none') {
+    if (gemini) {
+      const answer = await gemini.answerQuestion(text, "You are Nexus Civic's intelligent AI assistant. Use your general knowledge to answer the citizen's question helpfully, directly, clearly, and concisely.");
+      
+      let audioUrl: string | undefined;
+      if (body.voiceMode) {
+        const audioBuffer = await generateSpeech(answer);
+        if (audioBuffer) {
+          const fileName = `aura-assist-${randomUUID()}.mp3`;
+          const filePath = path.join('/tmp', fileName);
+          await fs.writeFile(filePath, audioBuffer);
+          audioUrl = `/tmp/${fileName}`;
+        }
+      }
+
+      res.json({
+        answer,
+        sources: ['Gemini AI General Knowledge'],
+        blocked: false,
+        audioUrl,
+      });
+      return;
+    }
+  }
 
   const decision = evaluatePolicy(userId, role, action, moduleName);
   await logDecision(decision, text, userId);
