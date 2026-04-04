@@ -4,6 +4,7 @@ import GrievanceQueue from '@/components/dashboard/GrievanceQueue';
 import RiskZones from '@/components/dashboard/RiskZones';
 import CivicPulseFeed from '@/components/dashboard/CivicPulseFeed';
 import SOSAlertsFeed from '@/components/dashboard/SOSAlertsFeed';
+import IssueReportsFeed from '@/components/dashboard/IssueReportsFeed';
 import BudgetSummary from '@/components/dashboard/BudgetSummary';
 import AuraAuditLog from '@/components/dashboard/AuraAuditLog';
 
@@ -50,7 +51,12 @@ export default function DashboardPage() {
         <SOSAlertsFeed />
       </div>
 
-      {/* Row 5: CivicPulseFeed */}
+      {/* Row 5: Issue Reports Feed */}
+      <div className="w-full">
+        <IssueReportsFeed />
+      </div>
+
+      {/* Row 6: CivicPulseFeed */}
       <div className="w-full">
         <CivicPulseFeed />
       </div>

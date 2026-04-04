@@ -120,42 +120,46 @@ export default function ReportWizardPage() {
     }
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      const backendCategory = CATEGORY_MAP[category] || 'other';
-      const district = (address || 'jabalpur').trim();
-      const payload = {
-        title: title.trim(),
-        description: description.trim(),
-        category: backendCategory,
-        district,
-        location: {
-          lat: location?.lat ?? 0,
-          lng: location?.lng ?? 0,
-          address: address || undefined,
-        },
-      };
+    const handleSubmit = async () => {
+      setIsSubmitting(true);
+      try {
+        const backendCategory = CATEGORY_MAP[category] || 'other';
+        const district = (address || 'jabalpur').trim();
+        const payload = {
+          title: title.trim(),
+          description: description.trim(),
+          category: backendCategory,
+          district,
+          location: {
+            lat: location?.lat ?? 0,
+            lng: location?.lng ?? 0,
+            address: address || undefined,
+          },
+        };
+  
+        const response = await axios.post('/api/reports', payload).catch(err => {
+          console.error("Report POST error", err);
+          alert("Failed to send Report to database! Error: " + (err.response?.data?.message || err.message) + "\n\n(This is usually because your IP is not whitelisted in MongoDB Atlas Network Access)");
+          throw err;
+        });
 
-      const response = await axios.post(`${SERVICE_URLS.pulseReport}/api/grievances`, payload);
-      const createdTicketId = response?.data?.data?.ticketId;
-      if (!createdTicketId) {
-        throw new Error('Ticket ID missing in response');
+        const createdTicketId = response?.data?.data?.ticketId;
+        if (!createdTicketId) {
+          throw new Error('Ticket ID missing in response');
+        }
+  
+        setTicketId(createdTicketId);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (err) {
+        console.error('Submission failed', err);
+      } finally {
+        setIsSubmitting(false);
       }
-
-      setTicketId(createdTicketId);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
-    } catch (err) {
-      console.error('Submission failed', err);
-      alert('Submission failed. Please verify backend services are running.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
 
   const nextStep = () => setStep(prev => Math.min(prev + 1, 5));
   const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
