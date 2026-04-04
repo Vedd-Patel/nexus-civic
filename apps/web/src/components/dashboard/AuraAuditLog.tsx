@@ -3,22 +3,21 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher, SERVICE_URLS } from '@/lib/api';
 
-const MOCK_LOGS = [
-  { id: 1, ts: '10:42:01', role: 'OFFICER', query: 'SELECT * FROM citizens WHERE id=123', module: 'Database', status: 'ALLOWED' },
-  { id: 2, ts: '10:45:12', role: 'ANON', query: 'UPDATE settings SET admin=1', module: 'Config', status: 'BLOCKED' },
-  { id: 3, ts: '10:47:55', role: 'SYSTEM', query: 'CRON: sync_external_data', module: 'Jobs', status: 'ALLOWED' },
-  { id: 4, ts: '10:50:33', role: 'OFFICER', query: 'DROP TABLE grievances', module: 'Database', status: 'BLOCKED' },
-];
-
 export default function AuraAuditLog() {
-  const { data: rawLogs } = useSWR(`${SERVICE_URLS.auraAssist}/api/audit-logs?limit=20`, fetcher, { refreshInterval: 10000 });
-  const logs = Array.isArray(rawLogs)
-    ? rawLogs
-    : Array.isArray((rawLogs as any)?.logs)
-      ? (rawLogs as any).logs
-      : Array.isArray((rawLogs as any)?.data)
-        ? (rawLogs as any).data
-        : MOCK_LOGS;
+  const { data: rawLogs } = useSWR(`${SERVICE_URLS.auraAssist}/api/audit-logs?limit=20`, fetcher, { refreshInterval: 5000 });
+  
+  // Real logs come through as { success: true, data: { items: [...] } }
+  const realLogs = rawLogs?.data?.items || [];
+  
+  // Cleanly map the Mongo Database fields to the UI fields
+  const logs = realLogs.map((log: any) => ({
+    id: log._id,
+    ts: log.createdAt ? new Date(log.createdAt).toLocaleTimeString() : 'Unknown',
+    role: log.role || 'UNKNOWN',
+    module: log.module || 'Unknown',
+    query: log.query || 'N/A',
+    status: log.allowed ? 'ALLOWED' : 'BLOCKED'
+  }));
 
   const [filter, setFilter] = useState('ALL');
 
