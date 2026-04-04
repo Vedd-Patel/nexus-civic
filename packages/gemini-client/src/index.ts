@@ -8,8 +8,8 @@ export class GeminiClient {
   constructor(apiKey: string) {
     const genAI = new GoogleGenerativeAI(apiKey);
     // Initialize Gemini models for text and vision workloads.
-    this.textModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    this.visionModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    this.textModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+    this.visionModel = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
   }
 
   /** Used by: PulseReport (grievance classification), CivicPulse (sentiment)

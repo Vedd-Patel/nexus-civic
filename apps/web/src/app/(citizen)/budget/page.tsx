@@ -20,14 +20,29 @@ export default function BudgetPage() {
     { id: 3, date: "2026-04-03", dept: "Security", cat: "Equipment", amt: "$45,000", status: "Completed", link: "0xMockHash456b" }
   ];
 
-  const handleAsk = () => {
+  const handleAsk = async () => {
     if(!question) return;
     setLoadingAnswer(true);
     setAnswer("");
-    setTimeout(() => {
-       setAnswer("Based on recent blockchain records, the city has allocated exactly 15% more budget toward road repairs this quarter. Transactions for 'Public Works' are up.");
-       setLoadingAnswer(false);
-    }, 1500);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_LEDGER_CIVIC_URL || 'http://localhost:3009';
+      const response = await fetch(`${baseUrl}/api/budget/ask`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const resData = await response.json();
+      if (resData.success && resData.data) {
+        setAnswer(resData.data);
+      } else {
+        setAnswer("Sorry, I couldn't retrieve an answer at this time.");
+      }
+    } catch (error) {
+      console.error('Error asking budget question:', error);
+      setAnswer("Sorry, there was an error processing your request.");
+    } finally {
+      setLoadingAnswer(false);
+    }
   }
 
   const CustomTooltip = ({ active, payload, label }: any) => {
