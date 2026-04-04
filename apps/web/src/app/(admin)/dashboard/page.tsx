@@ -6,6 +6,7 @@ import SOSAlertsFeed from '@/components/dashboard/SOSAlertsFeed';
 import BudgetSummary from '@/components/dashboard/BudgetSummary';
 import AuraAuditLog from '@/components/dashboard/AuraAuditLog';
 import AddExpenditureCard from '@/components/dashboard/AddExpenditureCard';
+import AdminExpenditureList from '@/components/dashboard/AdminExpenditureList';
 
 export default function DashboardPage() {
   return (
@@ -50,7 +51,7 @@ export default function DashboardPage() {
         <CivicPulseFeed />
       </div>
 
-      {/* Row 6: BudgetSummary 50% + AuraAuditLog 50% */}
+      {/* Row 6: BudgetSummary + AddExpenditureCard + AuraAuditLog */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="w-full lg:w-1/3">
           <BudgetSummary />
@@ -61,6 +62,11 @@ export default function DashboardPage() {
         <div className="w-full lg:w-1/3">
           <AuraAuditLog />
         </div>
+      </div>
+
+      {/* Row 7: Actual Expenditures List */}
+      <div className="w-full h-80">
+        <AdminExpenditureList />
       </div>
     </div>
   );

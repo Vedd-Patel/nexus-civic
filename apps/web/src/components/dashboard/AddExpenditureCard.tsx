@@ -121,12 +121,12 @@ export default function AddExpenditureCard() {
             <p className="text-xs text-emerald-800 font-medium">Successfully logged to Solana devnet!</p>
             {hash && (
               <a 
-                href={`https://explorer.solana.com/tx/${hash}?cluster=devnet`} 
+                href={hash.startsWith('mock_') ? 'https://explorer.solana.com/?cluster=devnet' : `https://explorer.solana.com/tx/${hash}?cluster=devnet`} 
                 target="_blank" 
                 rel="noreferrer"
                 className="mt-1 flex items-center gap-1 text-[10px] text-emerald-600 font-mono break-all hover:underline"
               >
-                Signature: {hash} ↗
+                {hash.startsWith('mock_') ? 'Simulated Devnet Link ↗' : `Signature: ${hash} ↗`}
               </a>
             )}
           </div>

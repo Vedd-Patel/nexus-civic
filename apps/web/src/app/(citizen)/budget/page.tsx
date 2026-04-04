@@ -32,7 +32,8 @@ export default function BudgetPage() {
     cat: e.category,
     amt: `$${e.amount.toLocaleString()}`,
     status: 'Completed',
-    link: e.isMockSignature || (e.solanaSignature && e.solanaSignature.startsWith('mock_')) ? null : e.solanaSignature
+    link: e.solanaSignature,
+    isMock: e.isMockSignature || (e.solanaSignature && e.solanaSignature.startsWith('mock_'))
   })) || [];
 
   const handleAsk = async () => {
@@ -158,17 +159,15 @@ export default function BudgetPage() {
                        </span>
                      </td>
                      <td className="py-4">
-                       {e.link ? (
-                         <a href={`https://explorer.solana.com/tx/${e.link}?cluster=devnet`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 text-blue-600 px-4 py-1.5 rounded-full text-xs font-semibold hover:bg-blue-100 transition-all">
-                           <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                           View on Solana ↗
-                         </a>
-                       ) : (
-                         <span className="inline-flex items-center gap-2 bg-slate-50 border border-slate-200 text-slate-400 px-4 py-1.5 rounded-full text-xs font-semibold">
-                           <span className="w-2 h-2 rounded-full bg-slate-300"></span>
-                           Mock Record
-                         </span>
-                       )}
+                       <a 
+                         href={e.isMock ? 'https://explorer.solana.com/?cluster=devnet' : `https://explorer.solana.com/tx/${e.link}?cluster=devnet`} 
+                         target="_blank" 
+                         rel="noreferrer" 
+                         className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${e.isMock ? 'bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100' : 'bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100'}`}
+                       >
+                         {e.isMock ? <span className="w-2 h-2 rounded-full bg-slate-400"></span> : <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>}
+                         {e.isMock ? 'Simulated Log ↗' : 'View on Solana ↗'}
+                       </a>
                      </td>
                    </tr>
                  ))}
