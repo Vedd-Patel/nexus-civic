@@ -3,6 +3,7 @@ import SafetyHeatmap from '@/components/dashboard/SafetyHeatmap';
 import GrievanceQueue from '@/components/dashboard/GrievanceQueue';
 import RiskZones from '@/components/dashboard/RiskZones';
 import CivicPulseFeed from '@/components/dashboard/CivicPulseFeed';
+import SOSAlertsFeed from '@/components/dashboard/SOSAlertsFeed';
 import BudgetSummary from '@/components/dashboard/BudgetSummary';
 import AuraAuditLog from '@/components/dashboard/AuraAuditLog';
 
@@ -44,12 +45,17 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Row 4: CivicPulseFeed */}
+      {/* Row 4: SOS Live Alerts */}
+      <div className="w-full">
+        <SOSAlertsFeed />
+      </div>
+
+      {/* Row 5: CivicPulseFeed */}
       <div className="w-full">
         <CivicPulseFeed />
       </div>
 
-      {/* Row 5: BudgetSummary 50% + AuraAuditLog 50% */}
+      {/* Row 6: BudgetSummary 50% + AuraAuditLog 50% */}
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="w-full lg:w-1/2">
           <BudgetSummary />

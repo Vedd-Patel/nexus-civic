@@ -62,13 +62,18 @@ export default function SafetyPage() {
   const triggerSos = async () => {
     setSosState('triggered');
     try {
-      await axios.post(`${SERVICE_URLS.guardianNet}/api/sos/trigger`, {
+      await axios.post('/api/sos', {
         lat: location?.lat,
         lng: location?.lng,
-        timestamp: new Date().toISOString()
-      }).catch(() => {});
-    } catch (e) {
+      }).catch((err) => {
+        console.error("SOS POST error", err);
+        alert("Failed to send SOS to database! Error: " + (err.response?.data?.message || err.message) + "\n\n(This is usually because your IP is not whitelisted in MongoDB Atlas Network Access)");
+        setSosState('idle');
+      });
+    } catch (e: any) {
       console.error(e);
+      alert("Error: " + e.message);
+      setSosState('idle');
     }
   };
 
