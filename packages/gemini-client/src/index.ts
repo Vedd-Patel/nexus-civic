@@ -138,6 +138,41 @@ export class GeminiClient {
     return fallback;
   }
 
+  /** Used by: PulseReport, VoiceAssembly (reality check)
+   * @returns { isReal, reasoning }
+   * Fallback: { isReal: true, reasoning: 'reality check failed' }
+   */
+  async checkReality(text: string): Promise<RealityCheckResult> {
+    const fallback: RealityCheckResult = { isReal: true, reasoning: 'reality check failed' };
+
+    const request = [
+      'You are a civic issue verifier.',
+      'Analyze the text and determine if it describes a genuine, realistic civic issue or if it is a prank, spam, or nonsense.',
+      'Return ONLY valid JSON with this exact shape:',
+      '{"isReal":true,"reasoning":"string"}',
+      `Input text: ${text}`,
+    ].join('\n');
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await this.textModel.generateContent(request);
+        const parsed = this.parseJson<Partial<RealityCheckResult>>(response.response.text());
+        return {
+          isReal: typeof parsed.isReal === 'boolean' ? parsed.isReal : true,
+          reasoning: typeof parsed.reasoning === 'string' ? parsed.reasoning : fallback.reasoning,
+        };
+      } catch {
+        if (attempt < 2) {
+          await this.waitWithBackoff(attempt);
+          continue;
+        }
+        return fallback;
+      }
+    }
+
+    return fallback;
+  }
+
   /** Used by: NearGive (item quality check), TerraScan (satellite image analysis)
    * @param base64Image - base64 encoded image
    * @returns { findings, severity (1-5), recommendations, accepted }
@@ -407,4 +442,9 @@ export interface RiskPrediction {
 export interface IntentResult {
   action: string;
   module: string;
+}
+
+export interface RealityCheckResult {
+  isReal: boolean;
+  reasoning: string;
 }

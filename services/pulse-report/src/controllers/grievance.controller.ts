@@ -25,6 +25,7 @@ type GeminiClassifier = {
     newText: string,
     existing: Array<{ id: string; text: string }>
   ) => Promise<{ isDuplicate: boolean; matchedId?: string; similarity: number }>;
+  checkReality: (text: string) => Promise<{ isReal: boolean; reasoning: string }>;
 };
 
 type AuthUser = {
@@ -119,6 +120,19 @@ export async function submitGrievance(req: Request, res: Response): Promise<void
 
   let aiCategory = providedCategory;
   let categoryConfidence = 0;
+
+  if (gemini) {
+    try {
+      const reality = await gemini.checkReality(text);
+      if (!reality.isReal) {
+        res.status(400).json(errorResponse(`Report flagged as unrealistic: ${reality.reasoning}`, 400));
+        return;
+      }
+    } catch {
+      logger.warn('Gemini reality check failed; continuing grievance creation.');
+    }
+  }
+
   try {
     if (gemini) {
       const classification = await gemini.classifyText(text, GRIEVANCE_CATEGORIES);

@@ -93,22 +93,46 @@ export const submitIssue = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // Deduplication via Gemini
+    const session = await TownHallSession.findById(req.params.id);
+    if (!session) {
+      res.status(404).json({ error: 'Session not found' });
+      return;
+    }
+
+    // Deduplication and Reality Check via Gemini
     try {
       const gemini = createGeminiClient(process.env.GEMINI_API_KEY || '');
+      
+      const reality = await gemini.checkReality(finalTranscript);
+      if (!reality.isReal) {
+        res.status(400).json({ error: `Issue flagged as unrealistic: ${reality.reasoning}` });
+        return;
+      }
+
+      // @ts-ignore
+      const existingIssues = session.issues;
+      if (existingIssues && existingIssues.length > 0) {
+        const duplicateCheck = await gemini.detectDuplicate(
+          finalTranscript,
+          existingIssues.map((iss: any) => ({
+            id: String(iss._id || iss.id || Math.random()),
+            text: iss.text,
+          }))
+        );
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.similarity > 0.8) {
+          res.status(400).json({ error: 'Duplicate issue found in this session.' });
+          return;
+        }
+      }
+
       const dedupPrompt = `Analyze the following issue and rephrase it into a clear, concise sentence for a town hall meeting. Ignore conversational filler.\nIssue: ${finalTranscript}`;
       const aiResponse = await gemini.answerQuestion(dedupPrompt, "Provide only a single rephrased sentence.");
       if (aiResponse && aiResponse !== 'Unable to answer at this time. Please check back later.') {
         finalTranscript = aiResponse;
       }
     } catch (aiError) {
-      logger.warn('Gemini deduplication failed, using raw transcript', aiError);
-    }
-
-    const session = await TownHallSession.findById(req.params.id);
-    if (!session) {
-      res.status(404).json({ error: 'Session not found' });
-      return;
+      logger.warn('Gemini reality/deduplication checks failed, continuing with raw transcript', aiError);
     }
 
     const newIssue = {
