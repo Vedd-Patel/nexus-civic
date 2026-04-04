@@ -175,7 +175,7 @@ export default function ReportWizardPage() {
           {ticketId}
         </div>
         <Link 
-          href="/"
+          href={`/track/${ticketId}`}
           className="inline-block text-lg font-semibold text-indigo-600 hover:text-indigo-800 transition-colors bg-indigo-50 px-8 py-4 rounded-full border border-indigo-200"
         >
           Track your complaint
