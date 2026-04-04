@@ -1,23 +1,12 @@
 'use client';
 import useSWR from 'swr';
-import { fetcher, SERVICE_URLS } from '@/lib/api';
+import axios from 'axios';
 
-const MOCK_DATA = [
-  { id: 'TKT-102', category: 'Infrastructure', priority: 'CRITICAL', location: 'Downtown', time: '2h 15m ago', status: 'OPEN' },
-  { id: 'TKT-103', category: 'Sanitation', priority: 'HIGH', location: 'East Side', time: '3h ago', status: 'OPEN' },
-  { id: 'TKT-104', category: 'Noise', priority: 'MEDIUM', location: 'West End', time: '5h ago', status: 'OPEN' },
-  { id: 'TKT-105', category: 'Parking', priority: 'LOW', location: 'North Hills', time: '1d ago', status: 'OPEN' },
-];
+const fetcher = (url: string) => axios.get(url).then(res => res.data.data);
 
 export default function GrievanceQueue() {
-  const { data: rawData } = useSWR(`${SERVICE_URLS.pulseReport}/api/grievances?public=1&status=OPEN&limit=20`, fetcher, { refreshInterval: 30000 });
-  const data = Array.isArray(rawData)
-    ? rawData
-    : Array.isArray((rawData as any)?.grievances)
-      ? (rawData as any).grievances
-      : Array.isArray((rawData as any)?.data)
-        ? (rawData as any).data
-        : MOCK_DATA;
+  const { data: rawData, mutate } = useSWR('/api/reports', fetcher, { refreshInterval: 5000 });
+  const data = Array.isArray(rawData) ? rawData : [];
 
   const getPriorityStyle = (p: string) => {
     switch(p) {
@@ -26,6 +15,22 @@ export default function GrievanceQueue() {
       case 'MEDIUM': return 'bg-amber-100 text-amber-700 border border-amber-200';
       case 'LOW': return 'bg-slate-100 text-slate-600 border border-slate-200';
       default: return 'bg-slate-100 text-slate-600 border border-slate-200';
+    }
+  };
+
+  const derivePriority = (cat: string) => {
+    const c = cat.toLowerCase();
+    if (c.includes('fire') || c.includes('safety') || c.includes('water')) return 'CRITICAL';
+    if (c.includes('pothole') || c.includes('waste')) return 'HIGH';
+    return 'MEDIUM';
+  };
+
+  const handleResolve = async (id: string) => {
+    try {
+      await axios.delete(`/api/reports/${id}`);
+      mutate(); // Immediately re-fetch
+    } catch (e) {
+      console.error('Error resolving grievance:', e);
     }
   };
 
@@ -48,29 +53,49 @@ export default function GrievanceQueue() {
           <tbody>
             {data.map((item: any, idx: number) => {
               if (!item || typeof item !== 'object') return null;
+              const priority = item.priority || derivePriority(item.category);
+              
+              const displayTime = item.createdAt 
+                ? new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+                : item.time;
+              
+              const displayLocation = typeof item.location === 'object' 
+                ? (item.location?.address || item.district || 'Unknown') 
+                : (item.location || item.district || 'Unknown');
+
               return (
-              <tr key={String(item?.id ?? idx)} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${item.priority === 'CRITICAL' ? 'bg-red-50/50 border-l-2 border-l-red-400' : ''}`}>
-                <td className="px-4 py-3 font-space-mono text-indigo-600 font-medium">{item.ticketId || item.id}</td>
-                <td className="px-4 py-3">
-                  <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium">{item.category}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-1 rounded-md text-xs font-bold ${getPriorityStyle(item.priority)}`}>
-                    {item.priority}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-slate-600">
-                  {typeof item.location === 'object' ? (item.location?.address || item.district || 'Unknown') : (item.location || item.district || 'Unknown')}
-                </td>
-                <td className="px-4 py-3 text-slate-400">
-                  {item.createdAt ? new Date(item.createdAt).toLocaleDateString() + ' ' + new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : item.time}
-                </td>
-                <td className="px-4 py-3 text-slate-600">{item.status}</td>
-                <td className="px-4 py-3">
-                  <button className="text-indigo-600 hover:text-indigo-800 font-medium text-xs">Resolve</button>
-                </td>
-              </tr>
-            )})}
+                <tr key={String(item?._id ?? idx)} className={`border-b border-slate-100 hover:bg-slate-50 transition-colors ${priority === 'CRITICAL' ? 'bg-red-50/50 border-l-2 border-l-red-400' : ''}`}>
+                  <td className="px-4 py-3 font-space-mono text-indigo-600 font-medium truncate max-w-[120px]" title={item._id}>{item._id}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-medium uppercase truncate block max-w-[100px]">{item.category}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded-md text-xs font-bold ${getPriorityStyle(priority)}`}>
+                      {priority}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 truncate max-w-[150px]" title={displayLocation}>
+                    {displayLocation}
+                  </td>
+                  <td className="px-4 py-3 text-slate-400 whitespace-nowrap">
+                    {displayTime}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600 uppercase font-semibold text-xs tracking-wider">
+                    {item.status}
+                  </td>
+                  <td className="px-4 py-3">
+                    {item.status !== 'resolved' && (
+                      <button 
+                        onClick={() => handleResolve(item._id)}
+                        className="text-indigo-600 hover:text-white hover:bg-indigo-600 border border-indigo-600 font-bold px-3 py-1.5 rounded-lg text-xs transition-all active:scale-95"
+                      >
+                        Resolve
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

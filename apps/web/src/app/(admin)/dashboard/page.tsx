@@ -1,10 +1,8 @@
 import KPICard from '@/components/dashboard/KPICard';
 import SafetyHeatmap from '@/components/dashboard/SafetyHeatmap';
 import GrievanceQueue from '@/components/dashboard/GrievanceQueue';
-import RiskZones from '@/components/dashboard/RiskZones';
 import CivicPulseFeed from '@/components/dashboard/CivicPulseFeed';
 import SOSAlertsFeed from '@/components/dashboard/SOSAlertsFeed';
-import IssueReportsFeed from '@/components/dashboard/IssueReportsFeed';
 import BudgetSummary from '@/components/dashboard/BudgetSummary';
 import AuraAuditLog from '@/components/dashboard/AuraAuditLog';
 
@@ -36,14 +34,9 @@ export default function DashboardPage() {
         <SafetyHeatmap />
       </div>
 
-      {/* Row 3: GrievanceQueue 60% + RiskZones 40% */}
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="w-full lg:w-[60%]">
-          <GrievanceQueue />
-        </div>
-        <div className="w-full lg:w-[40%]">
-          <RiskZones />
-        </div>
+      {/* Row 3: GrievanceQueue Full Width */}
+      <div className="w-full">
+        <GrievanceQueue />
       </div>
 
       {/* Row 4: SOS Live Alerts */}
@@ -51,12 +44,7 @@ export default function DashboardPage() {
         <SOSAlertsFeed />
       </div>
 
-      {/* Row 5: Issue Reports Feed */}
-      <div className="w-full">
-        <IssueReportsFeed />
-      </div>
-
-      {/* Row 6: CivicPulseFeed */}
+      {/* Row 5: CivicPulseFeed */}
       <div className="w-full">
         <CivicPulseFeed />
       </div>
