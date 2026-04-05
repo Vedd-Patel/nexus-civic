@@ -3,7 +3,31 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { fetcher, SERVICE_URLS } from '@/lib/api';
 
-const MOCK_LOGS = [
+type AuditApiLog = {
+  _id?: string;
+  createdAt?: string;
+  role?: string;
+  module?: string;
+  query?: string;
+  allowed?: boolean;
+};
+
+type AuditResponse = {
+  logs?: AuditApiLog[];
+  data?: AuditApiLog[];
+  items?: AuditApiLog[];
+};
+
+type AuditViewLog = {
+  id: string | number;
+  ts: string;
+  role: string;
+  module: string;
+  query: string;
+  status: 'ALLOWED' | 'BLOCKED';
+};
+
+const MOCK_LOGS: AuditViewLog[] = [
   { id: 1, ts: '10:42:01', role: 'OFFICER', query: 'SELECT * FROM citizens WHERE id=123', module: 'Database', status: 'ALLOWED' },
   { id: 2, ts: '10:45:12', role: 'ANON', query: 'UPDATE settings SET admin=1', module: 'Config', status: 'BLOCKED' },
   { id: 3, ts: '10:47:55', role: 'SYSTEM', query: 'CRON: sync_external_data', module: 'Jobs', status: 'ALLOWED' },
@@ -11,18 +35,34 @@ const MOCK_LOGS = [
 ];
 
 export default function AuraAuditLog() {
-  const { data: rawLogs } = useSWR(`${SERVICE_URLS.auraAssist}/api/audit-logs?limit=20`, fetcher, { refreshInterval: 10000 });
-  const logs = Array.isArray(rawLogs)
-    ? rawLogs
-    : Array.isArray((rawLogs as any)?.logs)
-      ? (rawLogs as any).logs
-      : Array.isArray((rawLogs as any)?.data)
-        ? (rawLogs as any).data
-        : MOCK_LOGS;
+  const { data: rawLogs } = useSWR<AuditResponse>(
+    `${SERVICE_URLS.auraAssist}/api/audit-logs?limit=20`,
+    fetcher,
+    { refreshInterval: 10000 }
+  );
+
+  const realLogs = Array.isArray(rawLogs?.items)
+    ? rawLogs.items
+    : Array.isArray(rawLogs?.logs)
+      ? rawLogs.logs
+      : Array.isArray(rawLogs?.data)
+        ? rawLogs.data
+        : [];
+  
+  const normalizedLogs: AuditViewLog[] = realLogs.map((log, idx) => ({
+    id: log._id ?? `log-${idx}`,
+    ts: log.createdAt ? new Date(log.createdAt).toLocaleTimeString() : 'Unknown',
+    role: log.role || 'UNKNOWN',
+    module: log.module || 'Unknown',
+    query: log.query || 'N/A',
+    status: log.allowed ? 'ALLOWED' : 'BLOCKED',
+  }));
+
+  const logs = normalizedLogs.length > 0 ? normalizedLogs : MOCK_LOGS;
 
   const [filter, setFilter] = useState('ALL');
 
-  const filteredLogs = logs.filter((l: any) => {
+  const filteredLogs = logs.filter((l) => {
     if (filter === 'BLOCKED') return l.status === 'BLOCKED';
     return true;
   });
@@ -49,10 +89,9 @@ export default function AuraAuditLog() {
             </tr>
           </thead>
           <tbody>
-            {filteredLogs.map((log: any, idx: number) => {
-              if (!log || typeof log !== 'object') return null;
+            {filteredLogs.map((log, idx) => {
               return (
-              <tr key={String(log?.id ?? idx)} className={`border-b border-slate-100 ${log.status === 'BLOCKED' ? 'bg-red-50 border-l-4 border-l-red-400' : 'border-l-4 border-l-transparent'}`}>
+              <tr key={String(log.id ?? idx)} className={`border-b border-slate-100 ${log.status === 'BLOCKED' ? 'bg-red-50 border-l-4 border-l-red-400' : 'border-l-4 border-l-transparent'}`}>
                 <td className="py-2 px-2 text-slate-400 font-space-mono">{log.ts}</td>
                 <td className="py-2 px-2"><span className="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold border border-slate-200">{log.role}</span></td>
                 <td className="py-2 px-2 text-indigo-600 font-medium">{log.module}</td>
